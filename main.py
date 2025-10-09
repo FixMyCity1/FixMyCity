@@ -1,15 +1,12 @@
 from nicegui import ui, app
 from pages import (
-    add_advert,
-    adverts,
-    dashboard,
-    edit_advert,
     login,
     view_advert,
     home,
     signup,
 )
 from components import sidebar, footer, header
+from pages.vendor import add_advert, adverts, dashboard, edit_advert
 
 #  Expose the assets folder to the nicegui server
 app.add_static_files("/assets", "assets")
