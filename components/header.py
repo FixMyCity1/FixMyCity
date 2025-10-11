@@ -7,18 +7,18 @@ def show_header():
     ):
         with ui.row().classes("w-full justify-between items-center px-8"):
             with ui.row().classes("items-center gap-2"):
-                ui.icon("location_city").classes("text-3xl text-sky-500")
-                ui.label("FixMyCity").classes("text-2xl font-bold text-sky-500")
+                ui.icon("location_city").classes("text-3xl text-black")
+                ui.label("FixMyCity").classes("text-2xl font-bold text-black")
 
             with ui.row().classes("gap-4 items-center"):
-                ui.link("Report an Issue").classes(
-                    "text-lg font-bold text-sky-500 hover:text-black transition-colors no-underline"
+                ui.link("Report an Issue", "/admin/dashboard").classes(
+                    "text-lg font-bold text-black hover:text-gray-600 transition-colors no-underline"
                 )
-                ui.link("login").classes(
-                    "text-lg font-bold text-sky-500 hover:text-black transition-colors no-underline"
+                ui.link("login", "/login").classes(
+                    "text-lg font-bold text-black hover:text-gray-600 transition-colors no-underline"
                 )
-                ui.link("Sign Up").classes(
+                ui.link("signup", "/signup").classes(
                     "auth-btn rounded-xl px-3 py-2 no-underline font-bold tracking-widest leading-tight"
                 ).style(
-                    "background:#0284c7 !important; color:white; letter-spacing: 0.15em; align-items:center;"
+                    "background:black !important; color:white; letter-spacing: 0.15em; align-items:center;"
                 )
