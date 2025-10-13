@@ -15,35 +15,23 @@ def show_home():
             "absolute inset-0 w-screen h-screen z-[-2]"
         ).style("width: 100vw; height: 100vh;"):
             with ui.carousel_slide().classes("w-screen h-screen").style(
-                "background-image: url(/assets/home1.png); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
+                "background-image: url(/assets/caro2.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
             ):
                 pass
             with ui.carousel_slide().classes("w-screen h-screen").style(
-                "background-image: url(/assets/home2.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
+                "background-image: url(/assets/caro3.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
             ):
                 pass
             with ui.carousel_slide().classes("w-screen h-screen").style(
-                "background-image: url(/assets/home3.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
+                "background-image: url(/assets/caro4.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
             ):
                 pass
             with ui.carousel_slide().classes("w-screen h-screen").style(
-                "background-image: url(/assets/home4.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
+                "background-image: url(/assets/caro6.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
             ):
                 pass
             with ui.carousel_slide().classes("w-screen h-screen").style(
-                "background-image: url(/assets/home5.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
-            ):
-                pass
-            with ui.carousel_slide().classes("w-screen h-screen").style(
-                "background-image: url(/assets/home6.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
-            ):
-                pass
-            with ui.carousel_slide().classes("w-screen h-screen").style(
-                "background-image: url(/assets/home7.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
-            ):
-                pass
-            with ui.carousel_slide().classes("w-screen h-screen").style(
-                "background-image: url(/assets/home8.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
+                "background-image: url(/assets/caro5.jpg); background-size: cover; background-position: center; width: 100vw; height: 100vh;"
             ):
                 pass
 
@@ -57,9 +45,7 @@ def show_home():
 
             # Two-column layout for image and text
             with ui.row().classes("w-full items-center m-0 p-0 gap-0"):
-                ui.image(
-                    "https://placehold.co/800x600/e0e0e0/333?text=FixMyCity"
-                ).classes("rounded-lg w-1/2 shadow-xl")
+                ui.image("/assets/caro1.jpg").classes("rounded-lg w-1/2 shadow-xl")
 
                 # Right side: Text
                 with ui.column().classes("w-1/2 justify-center items-center p-10"):
@@ -81,7 +67,7 @@ def show_home():
             with ui.card().classes(
                 "w-72 h-96 flex flex-col justify-end p-6 text-white relative group overflow-hidden"
             ).style(
-                "background-image: url('https://placehold.co/600x400/1f2937/white?text=Report'); background-size: cover; background-position: center;"
+                "background-image: url('/assets/report.jpg'); background-size: cover; background-position: center;"
             ):
                 ui.element("div").classes(
                     "absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"
@@ -96,7 +82,7 @@ def show_home():
             with ui.card().classes(
                 "w-72 h-96 flex flex-col justify-end p-6 text-white relative group overflow-hidden"
             ).style(
-                "background-image: url('https://placehold.co/600x400/1f2937/white?text=Investigate'); background-size: cover; background-position: center;"
+                "background-image: url('/assets/invest.jpg'); background-size: cover; background-position: center;"
             ):
                 ui.element("div").classes(
                     "absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"
@@ -111,7 +97,7 @@ def show_home():
             with ui.card().classes(
                 "w-72 h-96 flex flex-col justify-end p-6 text-white relative group overflow-hidden"
             ).style(
-                "background-image: url('https://placehold.co/600x400/1f2937/white?text=Fixed'); background-size: cover; background-position: center;"
+                "background-image: url('/assets/fix.jpg'); background-size: cover; background-position: center;"
             ):
                 ui.element("div").classes(
                     "absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"
@@ -136,68 +122,67 @@ def show_home():
             ):
                 # Testimonial 1
                 with ui.card().classes(
-                    "w-full md:w-2/5 flex flex-col items-center text-center p-8 shadow-lg"
+                    "w-72 h-96 flex flex-col justify-end p-6 text-white relative overflow-hidden"
+                ).style(
+                    "background-image: url('/assets/ama.jpg'); background-size: cover; background-position: center;"
                 ):
-                    ui.image(
-                        "https://placehold.co/100x100/e0e0e0/333?text=User"
-                    ).classes("w-24 h-24 rounded-full mb-4")
-                    ui.label(
-                        '"I reported a huge pothole on my street, and it was fixed within a week! FixMyCity actually works."'
-                    ).classes("flex-grow text-lg italic text-gray-600 mb-4")
-                    ui.label("Ama Serwaa").classes("font-bold text-lg")
-                    ui.label("Resident, Osu").classes("text-gray-500")
+                    ui.element("div").classes(
+                        "absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"
+                    )
+                    with ui.element("div").classes("relative"):
+                        ui.label(
+                            '"I reported a huge pothole on my street, and it was fixed within a week! FixMyCity actually works."'
+                        ).classes("text-lg italic text-gray-200 mb-4")
+                        ui.label("— Ama Serwaa").classes("font-bold text-lg")
+                        ui.label("Resident, Osu").classes("text-gray-300")
 
                 # Testimonial 2
                 with ui.card().classes(
-                    "w-full md:w-2/5 flex flex-col items-center text-center p-8 shadow-lg"
+                    "w-72 h-96 flex flex-col justify-end p-6 text-white relative overflow-hidden"
+                ).style(
+                    "background-image: url('/assets/nii.jpg'); background-size: cover; background-position: center;"
                 ):
-                    ui.image(
-                        "https://placehold.co/100x100/e0e0e0/333?text=User"
-                    ).classes("w-24 h-24 rounded-full mb-4")
-                    ui.label(
-                        '"A broken water pipe in our area was causing a lot of waste. I reported it on FixMyCity, and Ghana Water Company was notified and fixed it in two days. Incredible service!"'
-                    ).classes("flex-grow text-lg italic text-gray-600 mb-4")
-                    ui.label("Nii Armah").classes("font-bold text-lg")
-                    ui.label("Resident, East Legon").classes("text-gray-500")
+                    ui.element("div").classes(
+                        "absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"
+                    )
+                    with ui.element("div").classes("relative"):
+                        ui.label(
+                            '"A broken water pipe in our area was causing a lot of waste. I reported it on FixMyCity, and Ghana Water Company was notified and fixed it in two days. Incredible service!"'
+                        ).classes("text-lg italic text-gray-200 mb-4")
+                        ui.label("— Nii Armah").classes("font-bold text-lg")
+                        ui.label("Resident, East Legon").classes("text-gray-300")
 
                 # Testimonial 3
                 with ui.card().classes(
-                    "w-full md:w-2/5 flex flex-col items-center text-center p-8 shadow-lg"
+                    "w-72 h-96 flex flex-col justify-end p-6 text-white relative overflow-hidden"
+                ).style(
+                    "background-image: url('/assets/adwoa.jpg'); background-size: cover; background-position: center;"
                 ):
-                    ui.image(
-                        "https://placehold.co/100x100/e0e0e0/333?text=User"
-                    ).classes("w-24 h-24 rounded-full mb-4")
-                    ui.label(
-                        '"Illegal dumping near the market was a huge health hazard. After multiple reports on the platform, the local assembly organized a cleanup. The area is so much better now."'
-                    ).classes("flex-grow text-lg italic text-gray-600 mb-4")
-                    ui.label("Adwoa Boateng").classes("font-bold text-lg")
-                    ui.label("Shop Owner, Madina").classes("text-gray-500")
+                    ui.element("div").classes(
+                        "absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"
+                    )
+                    with ui.element("div").classes("relative"):
+                        ui.label(
+                            '"Illegal dumping near the market was a huge health hazard. After multiple reports on the platform, the local assembly organized a cleanup. The area is so much better now."'
+                        ).classes("text-lg italic text-gray-200 mb-4")
+                        ui.label("— Adwoa Boateng").classes("font-bold text-lg")
+                        ui.label("Shop Owner, Madina").classes("text-gray-300")
 
                 # Testimonial 4
                 with ui.card().classes(
-                    "w-full md:w-2/5 flex flex-col items-center text-center p-8 shadow-lg"
+                    "w-72 h-96 flex flex-col justify-end p-6 text-white relative overflow-hidden"
+                ).style(
+                    "background-image: url('/assets/ben.jpg'); background-size: cover; background-position: center;"
                 ):
-                    ui.image(
-                        "https://placehold.co/100x100/e0e0e0/333?text=User"
-                    ).classes("w-24 h-24 rounded-full mb-4")
-                    ui.label(
-                        "\"The streetlights on my campus road were out for weeks, making it unsafe at night. I reported it, and now they're all working. It's great to see a platform that gets results.\""
-                    ).classes("flex-grow text-lg italic text-gray-600 mb-4")
-                    ui.label("Ben Quarshie").classes("font-bold text-lg")
-                    ui.label("Student, Dansoman").classes("text-gray-500")
-
-                # Testimonial 5
-                with ui.card().classes(
-                    "w-full md:w-2/5 flex flex-col items-center text-center p-8 shadow-lg"
-                ):
-                    ui.image(
-                        "https://placehold.co/100x100/e0e0e0/333?text=User"
-                    ).classes("w-24 h-24 rounded-full mb-4")
-                    ui.label(
-                        '"A spot in our neighborhood became a haven for drug abuse, making us feel unsafe. We reported it on FixMyCity, and the police increased patrols, clearing the area. It\'s a relief for the community."'
-                    ).classes("flex-grow text-lg italic text-gray-600 mb-4")
-                    ui.label("Kofi Mensah").classes("font-bold text-lg")
-                    ui.label("Resident, Nima").classes("text-gray-500")
+                    ui.element("div").classes(
+                        "absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"
+                    )
+                    with ui.element("div").classes("relative"):
+                        ui.label(
+                            "\"The streetlights on my campus road were out for weeks, making it unsafe at night. I reported it, and now they're all working. It's great to see a platform that gets results.\""
+                        ).classes("text-lg italic text-gray-200 mb-4")
+                        ui.label("— Ben Quarshie").classes("font-bold text-lg")
+                        ui.label("Student, Dansoman").classes("text-gray-300")
 
         # Blog and Articles Section
         with ui.column().classes(

@@ -3,13 +3,22 @@ from nicegui import ui, app
 
 @ui.page("/signup")
 def show_signup():
+    ui.query(".nicegui-content").classes("m-0 p-0")
     with ui.row().classes("w-full h-screen m-0 p-0 gap-0"):
         # Left side image
-        ui.image("").classes("w-1/2 h-full object-cover")
+        with ui.element("div").classes("w-3/5 h-full relative"):
+            ui.image("/assets/signup.jpg").classes("w-full h-full object-cover")
+            with ui.column().classes(
+                "absolute inset-0 bg-black/40 flex justify-end p-12 text-white"
+            ):
+                ui.label("Akwaaba!").classes("text-5xl font-bold")
+                ui.label(
+                    "Join the movement to build a better Ghana, one report at a time."
+                ).classes("text-2xl text-gray-200 mt-2")
 
         # Right side signup form
         with ui.column().classes(
-            "w-1/2 h-full justify-center items-center bg-gray-100 p-10"
+            "w-2/5 h-full justify-center items-center bg-white p-10"
         ):
             ui.label("Sign Up").classes("text-3xl font-bold mb-6")
 
