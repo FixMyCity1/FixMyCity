@@ -1,5 +1,5 @@
 from nicegui import ui, app
-from .sidebar import show_sidebar
+from sidebar import show_sidebar
 
 
 @ui.page("/admin/reports")

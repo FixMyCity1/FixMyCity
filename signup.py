@@ -33,9 +33,11 @@ def show_signup():
             ).classes("w-80 mb-4")
 
             # Role selection
-            role = ui.select(["User", "Admin"], label="Select Role").classes(
-                "w-80 mb-6"
-            )
+            role = ui.select(
+                ["User", "Authority"],
+                label="Select Role",
+                value="User",
+            ).classes("w-80 mb-6")
 
             # Signup button
             def handle_signup():

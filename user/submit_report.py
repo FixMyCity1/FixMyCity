@@ -1,7 +1,7 @@
 from nicegui import ui, app
 
 
-@ui.page("/submit_report")
+@ui.page("/user/submit_report")
 def submit_report_page():
     with ui.column().classes("w-full items-center justify-center p-10 min-h-screen"):
 
@@ -15,46 +15,88 @@ def submit_report_page():
         with ui.column().classes("w-full max-w-xl gap-5"):
             with ui.column().classes("w-full gap-1"):
                 ui.label("Category").classes("text-gray-700 font-medium")
-                ui.select(
-                    [
-                        "Sanitation",
-                        "Pothole",
-                        "Broken Light",
-                        "Water Leak",
-                        "Drug Abuse",
-                        "Theft",
-                        "Other",
-                    ],
-                    label="Select a category",
-                ).props("outlined dense").classes("w-full")
+                category = (
+                    ui.select(
+                        [
+                            "Sanitation",
+                            "Pothole",
+                            "Broken Light",
+                            "Water Leak",
+                            "Drug Abuse",
+                            "Theft",
+                            "Other",
+                        ],
+                        label="Select a category",
+                    )
+                    .props("outlined dense")
+                    .classes("w-full")
+                )
 
             with ui.column().classes("w-full gap-1"):
                 ui.label("Title").classes("text-gray-700 font-medium")
-                ui.input("e.g., Large pothole on Main St").props(
-                    "outlined dense"
-                ).classes("w-full")
+                title = (
+                    ui.input("e.g., Large pothole on Main St")
+                    .props("outlined dense")
+                    .classes("w-full")
+                )
 
             with ui.column().classes("w-full gap-1"):
                 ui.label("Description").classes("text-gray-700 font-medium")
-                ui.textarea(
-                    "Describe the issue in detail, including its size and exact location if possible."
-                ).props("outlined dense").classes("w-full")
+                description = (
+                    ui.textarea(
+                        "Describe the issue in detail, including its size and exact location if possible."
+                    )
+                    .props("outlined dense")
+                    .classes("w-full")
+                )
 
             with ui.column().classes("w-full gap-1"):
-                ui.label("Location").classes("text-gray-700 font-medium")
-                ui.input("e.g., In front of 123 Main St").props(
-                    "outlined dense"
-                ).classes("w-full")
+                ui.label("Region/Town").classes("text-gray-700 font-medium")
+                region = (
+                    ui.input("e.g., Osu, Accra")
+                    .props("outlined dense")
+                    .classes("w-full")
+                )
 
             with ui.column().classes("w-full gap-1"):
-                ui.label("Photo (Optional)").classes("text-gray-700 font-medium")
-                ui.upload(
-                    label="Upload a file or drag and drop\nPNG, JPG, GIF up to 10MB"
-                ).props("flat bordered color=black").classes("w-full")
+                ui.label("GPS Address").classes("text-gray-700 font-medium")
+                gps_address = (
+                    ui.input("e.g., GA-435-0123 or a Google Maps link")
+                    .props("outlined dense")
+                    .classes("w-full")
+                )
 
-        def handle_submit():
-            ui.notify("submit successfully")
-            ui.navigate.to("/view_report")
+            with ui.column().classes("w-full gap-1"):
+                ui.label("Photo").classes("text-gray-700 font-medium")
+                photo = (
+                    ui.upload(
+                        label="Upload a file or drag and drop\nPNG, JPG, GIF up to 10MB"
+                    )
+                    .props("flat bordered color=black")
+                    .classes("w-full")
+                )
+
+        async def handle_submit():
+            # Check if all fields are filled
+            if not all(
+                [
+                    category.value,
+                    title.value,
+                    description.value,
+                    region.value,
+                    gps_address.value,
+                ]
+            ):
+                ui.notify("Please fill out all text fields.", type="negative")
+                return
+
+            # Check if a file has been uploaded
+            if not photo.files:
+                ui.notify("Please upload a photo of the issue.", type="negative")
+                return
+
+            ui.notify("Report submitted successfully!", type="positive")
+            ui.navigate.to("/dashboard")  # Navigate to the user's dashboard
 
         # Submit Button
         ui.button(

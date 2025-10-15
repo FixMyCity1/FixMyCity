@@ -11,7 +11,9 @@ def show_header():
                 ui.label("FixMyCity").classes("text-2xl font-bold text-black")
 
             with ui.row().classes("gap-4 items-center"):
-                ui.link("Report an Issue", "/admin/dashboard").classes(
+                ui.link(
+                    "Report an Issue", "/authority/update_report/{report_id}"
+                ).classes(
                     "text-lg font-bold text-black hover:text-gray-600 transition-colors no-underline"
                 )
                 ui.link("login", "/login").classes(
