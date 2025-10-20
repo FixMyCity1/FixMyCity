@@ -1,8 +1,11 @@
-from nicegui import ui, app
+from nicegui import ui, app, run, native
+import requests
+from utils.api import base_url
 
 
 @ui.page("/signup")
 def show_signup():
+    """Displays the signup page and handles user registration."""
     ui.query(".nicegui-content").classes("m-0 p-0")
     with ui.row().classes("w-full h-screen m-0 p-0 gap-0"):
         # Left side image
@@ -23,12 +26,12 @@ def show_signup():
             ui.label("Sign Up").classes("text-3xl font-bold mb-6")
 
             # Input fields
-            ui.input("Full Name").classes("w-80 mb-4")
-            ui.input("Email").classes("w-80 mb-4")
-            ui.input("Password", password=True, password_toggle_button=True).classes(
-                "w-80 mb-4"
-            )
-            ui.input(
+            username = ui.input("Username").classes("w-80 mb-4")
+            email = ui.input("Email").classes("w-80 mb-4")
+            password = ui.input(
+                "Password", password=True, password_toggle_button=True
+            ).classes("w-80 mb-4")
+            confirm_password = ui.input(
                 "Confirm Password", password=True, password_toggle_button=True
             ).classes("w-80 mb-4")
 
@@ -39,12 +42,81 @@ def show_signup():
                 value="User",
             ).classes("w-80 mb-6")
 
-            # Signup button
-            def handle_signup():
-                ui.notify(f"Signed up as {role.value or 'Unknown'}")
+            # Loading indicator
+            spinner = ui.spinner(size="lg").classes("hidden text-black")
 
+            async def handle_signup():
+                """Handle signup process by sending data to the backend API."""
+                if not all(
+                    [
+                        username.value,
+                        email.value,
+                        password.value,
+                        confirm_password.value,
+                    ]
+                ):
+                    ui.notify("Please fill in all fields.", type="warning")
+                    return
+
+                if password.value != confirm_password.value:
+                    ui.notify("Passwords do not match.", type="negative")
+                    return
+
+                payload = {
+                    "username": username.value,
+                    "email": email.value,
+                    "password": password.value,
+                    "role": role.value.lower(),
+                }
+
+                spinner.classes(remove="hidden")  # show spinner
+
+                def send_request() -> (
+                    requests.Response | requests.exceptions.RequestException
+                ):
+                    """Send signup request to backend."""
+                    try:
+                        # Use 'data=' because backend expects form-encoded data
+                        return requests.post(f"{base_url}/users/register", data=payload)
+                    except requests.exceptions.RequestException as e:
+                        return e
+
+                result = await run.io_bound(send_request)
+                spinner.classes(add="hidden")  # hide spinner
+
+                if isinstance(result, requests.exceptions.RequestException):
+                    ui.notify(
+                        f"Could not connect to the server: {result}", type="negative"
+                    )
+                    return
+
+                # Handle responses gracefully
+                if result.status_code == 200:
+                    ui.notify("Signup successful! Please log in.", type="positive")
+                    ui.navigate.to("/login")
+                elif result.status_code == 409:
+                    ui.notify(
+                        "A user with this email or username already exists.",
+                        type="warning",
+                    )
+                elif result.status_code == 422:
+                    ui.notify(
+                        "Invalid input. Please check your details.", type="warning"
+                    )
+                elif result.status_code >= 500:
+                    ui.notify("Server error. Please try again later.", type="negative")
+                else:
+                    try:
+                        message = result.json().get("detail", result.text)
+                    except Exception:
+                        message = result.text
+                    ui.notify(
+                        f"An unexpected error occurred: {message}", type="negative"
+                    )
+
+            # Signup button
             ui.button("Sign Up", on_click=handle_signup).classes(
-                "w-80 bg-black text-white py-2 rounded-lg"
+                "w-80 bg-black text-white py-2 rounded-lg mt-4"
             )
 
             # Link to login

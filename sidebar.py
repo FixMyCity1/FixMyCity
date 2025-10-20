@@ -89,10 +89,10 @@ def show_sidebar():
     """
     role = app.storage.user.get("role")
 
-    if role == "Administrator":
+    if role == "admin":
         show_admin_sidebar()
-    elif role == "Authority":
+    elif role == "authority":
         show_authority_sidebar()
-    elif role == "User":
+    elif role == "user":
         show_user_sidebar()
     # If no role is found (e.g., user not logged in), no sidebar will be shown.

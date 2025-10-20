@@ -1,10 +1,20 @@
 from nicegui import ui, app
+from sidebar import show_sidebar
 
 
 @ui.page("/user/submit_report")
 def submit_report_page():
-    with ui.column().classes("w-full items-center justify-center p-10 min-h-screen"):
+    """UI for a user to submit a new report."""
+    # --- Security Check ---
+    # Ensure the user is logged in to access this page.
+    if not app.storage.user.get("role"):
+        ui.notify("You must be logged in to submit a report.", type="negative")
+        ui.navigate.to("/login")
+        return
 
+    show_sidebar()
+
+    with ui.column().classes("w-full items-center p-10"):
         # Header Section
         ui.label("Report a City Issue").classes("text-4xl font-bold text-gray-800 mb-2")
         ui.label("Help us improve our community by reporting problems.").classes(

@@ -161,11 +161,11 @@ def show_dashboard():
         return
 
     # Render the dashboard based on the role
-    if role == "Administrator":
+    if role == "admin":  # Match lowercase role from backend
         show_admin_dashboard()
-    elif role == "Authority":
+    elif role == "authority":  # Match lowercase role from backend
         show_authority_dashboard()
-    elif role == "User":
+    elif role == "user":  # Match lowercase role from backend
         show_user_dashboard()
     else:
         # Fallback for unknown roles
