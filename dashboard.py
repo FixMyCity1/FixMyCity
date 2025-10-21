@@ -1,37 +1,65 @@
-from nicegui import ui, app
+from nicegui import ui, app, run
 from sidebar import show_sidebar
+import requests
+from utils.api import base_url
+from typing import List, Dict, Any
 
-# --- Mock Data (for demonstration purposes) ---
-# In a real application, this data would come from a database.
-REPORTS_DATA = [
-    {
-        "id": "#5821",
-        "category": "Pothole",
-        "location": "Osu, Accra",
-        "submitted_by": "user@example.com",
-        "submitted_on": "2024-07-22",
-        "status": "Pending",
-        "details": "A large pothole is causing traffic issues.",
-    },
-    {
-        "id": "#5820",
-        "category": "Sanitation",
-        "location": "East Legon, Accra",
-        "submitted_by": "another_user@example.com",
-        "submitted_on": "2024-07-21",
-        "status": "In Progress",
-        "details": "Waste has not been collected for over a week.",
-    },
-    {
-        "id": "#5819",
-        "category": "Broken Light",
-        "location": "Madina, Accra",
-        "submitted_by": "user@example.com",
-        "submitted_on": "2024-07-20",
-        "status": "Resolved",
-        "details": "Streetlight on the main road is broken.",
-    },
-]
+
+async def fetch_reports_from_api() -> List[Dict[str, Any]] | None:
+    """Fetches a list of reports from the API, handling authentication."""
+    token = app.storage.user.get("access_token")
+    if not token:
+        ui.notify("Authentication token not found. Please log in.", type="negative")
+        ui.navigate.to("/login")
+        return None
+
+    headers = {"Authorization": f"Bearer {token}"}
+
+    def send_request():
+        try:
+            # The backend will return the correct reports based on the user's role/token
+            return requests.get(f"{base_url}/issues", headers=headers)
+        except requests.exceptions.RequestException as e:
+            return e
+
+    result = await run.io_bound(send_request)
+
+    if isinstance(result, requests.exceptions.RequestException):
+        ui.notify(f"Could not connect to the server: {result}", type="negative")
+        return None
+    elif result.status_code == 200:
+        try:
+            json_data = result.json()
+            # Check if the response is a dictionary with a 'data' key
+            if (
+                isinstance(json_data, dict)
+                and "data" in json_data
+                and isinstance(json_data["data"], list)
+            ):
+                return json_data["data"]
+            # Or if it's directly a list (for APIs that might return it directly)
+            elif isinstance(json_data, list):
+                return json_data
+            else:
+                ui.notify(
+                    "API returned unexpected data format (not a list of reports).",
+                    type="negative",
+                )
+                print(
+                    f"DEBUG: API response for /issues was not a list or a dict with 'data' key: {json_data}"
+                )  # Log for debugging
+                return None
+        except requests.exceptions.JSONDecodeError:
+            ui.notify("API returned invalid JSON for reports.", type="negative")
+            print(
+                f"DEBUG: API response for /issues was not valid JSON: {result.text}"
+            )  # Log for debugging
+            return None
+    else:
+        ui.notify(
+            f"An error occurred while fetching reports: {result.text}", type="negative"
+        )
+        return None
 
 
 def show_admin_dashboard():
@@ -52,98 +80,133 @@ def show_admin_dashboard():
         ).props("color=black")
 
 
-def show_authority_dashboard():
+async def show_authority_dashboard():
     """Creates the UI for an authority to view and update reports."""
     show_sidebar()
 
     with ui.column().classes("w-full p-8"):
         ui.label("Assigned Reports").classes("text-3xl font-bold mb-6")
 
-        async def update_status_dialog(report: dict):
-            with ui.dialog() as dialog, ui.card():
-                ui.label(f"Update Status for {report['id']}").classes(
-                    "text-lg font-bold"
-                )
-                ui.label(f"Category: {report['category']}")
-                ui.label(f"Location: {report['location']}")
-                status_select = ui.select(
-                    ["Pending", "In Progress", "Resolved", "Rejected"],
-                    label="New Status",
-                    value=report["status"],
-                ).classes("w-full")
-                with ui.row().classes("w-full justify-end"):
-                    ui.button("Cancel", on_click=dialog.close)
-                    ui.button(
-                        "Update",
-                        on_click=lambda: (
-                            ui.notify(
-                                f"Status for {report['id']} updated to {status_select.value}"
-                            ),
-                            dialog.close(),
-                        ),
+        # Define reports_container and spinner outside the rendering loop
+        reports_container = ui.column().classes("w-full gap-4")
+        spinner = ui.spinner(size="lg").classes("self-center")
+
+        async def load_and_render_authority_reports():
+            """Fetches reports and renders them in the reports_container for authorities."""
+            spinner.set_visibility(True)
+            reports_container.clear()  # Clear existing reports
+            reports_data = await fetch_reports_from_api()
+            spinner.set_visibility(False)
+
+            with reports_container:  # Render new reports inside the container
+                if reports_data is None:  # Error case
+                    ui.label("Could not load reports.").classes("text-red-500")
+                    return
+                if not reports_data:
+                    ui.label("No reports are currently assigned.").classes(
+                        "text-gray-500"
                     )
-            await dialog
+                    return
 
-        for report in REPORTS_DATA:
-            with ui.card().classes("w-full"):
-                with ui.row().classes("w-full items-center justify-between"):
-                    with ui.column():
-                        ui.label(report["category"]).classes("text-lg font-bold")
-                        ui.label(f"{report['id']} - {report['location']}").classes(
-                            "text-gray-600"
-                        )
-                    with ui.row().classes("items-center gap-2"):
-                        ui.badge(
-                            report["status"],
-                            color={
-                                "Pending": "orange",
-                                "In Progress": "blue",
-                                "Resolved": "green",
-                            }.get(report["status"], "grey"),
-                        )
-                        ui.button(
-                            "Update Status",
-                            on_click=lambda r=report: update_status_dialog(r),
-                        ).props("flat")
+                for report in reports_data:
+                    with ui.card().classes("w-full p-4"):  # Add padding to the card
+                        with ui.row().classes("w-full items-center"):
+                            # Info Section - takes up remaining space
+                            with ui.column().classes("flex-grow gap-0"):
+                                ui.label(report.get("category", "No Category")).classes(
+                                    "text-lg font-bold"
+                                )
+                                ui.label(
+                                    f"#{report.get('id', 'N/A')} - {report.get('region', 'No Location')}"
+                                ).classes("text-sm text-gray-500")
+
+                            # Status and Action Section
+                            with ui.column().classes("items-end gap-2"):
+                                ui.badge(
+                                    report.get("status", "Unknown"),
+                                    color={
+                                        "Pending": "orange",
+                                        "In Progress": "blue",
+                                        "Resolved": "green",
+                                        "Rejected": "red",
+                                    }.get(report.get("status"), "grey"),
+                                ).classes("px-3 py-1")
+                                ui.button(
+                                    "Update Status",
+                                    on_click=lambda r=report: ui.navigate.to(
+                                        f"/authority/update_report/{r.get('id')}"
+                                    ),
+                                ).props("flat dense").classes("text-sm")
+
+        # Initial load of reports
+        await load_and_render_authority_reports()
 
 
-def show_user_dashboard():
+async def show_user_dashboard():
     """Creates the UI for a regular user to view their reports."""
     show_sidebar()
 
     with ui.column().classes("w-full p-8"):
         ui.label("My Submitted Reports").classes("text-3xl font-bold mb-6")
 
-        # In a real app, you'd filter reports for the logged-in user.
-        # e.g., reports = db.get_reports(user_id=app.storage.user['id'])
-        user_reports = [
-            r for r in REPORTS_DATA if r["submitted_by"] == "user@example.com"
-        ]
+        # Container for the reports list
+        user_reports_container = ui.column().classes("w-full gap-4")
+        user_spinner = ui.spinner(size="lg").classes("self-center")
 
-        if not user_reports:
-            ui.label("You haven't submitted any reports yet.").classes("text-gray-500")
-            return
+        async def load_and_render_user_reports():
+            """Fetches reports and renders them in the user_reports_container."""
+            user_spinner.set_visibility(True)
+            user_reports_container.clear()  # Clear existing reports
+            user_reports_data = await fetch_reports_from_api()
+            user_spinner.set_visibility(False)
 
-        for report in user_reports:
-            with ui.card().classes("w-full"):
-                with ui.row().classes("w-full items-center justify-between"):
-                    with ui.column():
-                        ui.label(report["category"]).classes("text-lg font-bold")
-                        ui.label(f"{report['id']} - {report['location']}").classes(
-                            "text-gray-600"
-                        )
-                    ui.badge(
-                        report["status"],
-                        color={
-                            "Pending": "orange",
-                            "In Progress": "blue",
-                            "Resolved": "green",
-                        }.get(report["status"], "grey"),
-                    ).classes("p-2")
+            with user_reports_container:  # Render new reports inside the container
+                if user_reports_data is None:  # Error case
+                    ui.label("Could not load your reports.").classes("text-red-500")
+                    return
+                if not user_reports_data:
+                    ui.label("You haven't submitted any reports yet.").classes(
+                        "text-gray-500"
+                    )
+                    return
+
+                for report in user_reports_data:
+                    report_id = report.get("id", "N/A")
+                    with ui.card().classes("w-full p-4"):  # Add padding to the card
+                        with ui.row().classes("w-full items-center"):
+                            # Info Section - takes up remaining space
+                            with ui.column().classes("flex-grow gap-0"):
+                                ui.label(report.get("category", "No Category")).classes(
+                                    "text-lg font-bold"
+                                )
+                                ui.label(
+                                    f"#{report_id} - {report.get('region', 'No Location')}"
+                                ).classes("text-sm text-gray-500")
+
+                            # Status and Action Section
+                            with ui.column().classes("items-end gap-2"):
+                                ui.badge(
+                                    report.get("status", "Unknown"),
+                                    color={
+                                        "Pending": "orange",
+                                        "In Progress": "blue",
+                                        "Resolved": "green",
+                                        "Rejected": "red",
+                                    }.get(report.get("status"), "grey"),
+                                ).classes("px-3 py-1")
+                                ui.button(
+                                    "View Details",
+                                    on_click=lambda r_id=report_id: ui.navigate.to(
+                                        f"/view_report/{r_id}"
+                                    ),
+                                ).props("flat dense").classes("text-sm")
+
+        # Initial load of reports
+        await load_and_render_user_reports()
 
 
 @ui.page("/dashboard")
-def show_dashboard():
+async def show_dashboard():
     """
     This function acts as a router, displaying the correct dashboard
     based on the user's role stored in the session.
@@ -163,20 +226,10 @@ def show_dashboard():
     # Render the dashboard based on the role
     if role == "admin":  # Match lowercase role from backend
         show_admin_dashboard()
-    elif role == "authority":  # Match lowercase role from backend
-        show_authority_dashboard()
+    elif role == "authorities":
+        await show_authority_dashboard()  # This now calls load_and_render_authority_reports internally
     elif role == "user":  # Match lowercase role from backend
-        show_user_dashboard()
+        await show_user_dashboard()  # This now calls load_and_render_user_reports internally
     else:
         # Fallback for unknown roles
         ui.label(f"Unknown role: {role}")
-        ui.button("Back to Home", on_click=lambda: ui.navigate.to("/"))
-
-
-@ui.page("/login_simulation/{role}")
-def login_simulation(role: str):
-    """A helper page to simulate logging in and setting a role."""
-    # In a real login page, you would set this after verifying credentials.
-    app.storage.user["role"] = role
-    ui.notify(f"Simulating login as: {role}", type="positive")
-    ui.navigate.to("/dashboard")

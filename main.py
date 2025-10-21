@@ -4,8 +4,8 @@ from nicegui import ui, app
 from home import *
 from dashboard import *
 from auth.update_report import *
-from admin.reports import *
-from admin.reports import *
+from auth.reports import *
+from auth.analytics import *
 from user.submit_report import *
 from user.view_report import *
 from login import *

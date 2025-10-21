@@ -1,4 +1,4 @@
-from nicegui import ui, app, run, native
+from nicegui import ui, run
 import requests
 from utils.api import base_url
 
@@ -62,21 +62,21 @@ def show_signup():
                     ui.notify("Passwords do not match.", type="negative")
                     return
 
+                # ✅ Map frontend role to backend-accepted values
+                backend_role = "authorities" if role.value == "Authority" else "user"
+
                 payload = {
                     "username": username.value,
                     "email": email.value,
                     "password": password.value,
-                    "role": role.value.lower(),
+                    "role": backend_role,
                 }
 
                 spinner.classes(remove="hidden")  # show spinner
 
-                def send_request() -> (
-                    requests.Response | requests.exceptions.RequestException
-                ):
+                def send_request():
                     """Send signup request to backend."""
                     try:
-                        # Use 'data=' because backend expects form-encoded data
                         return requests.post(f"{base_url}/users/register", data=payload)
                     except requests.exceptions.RequestException as e:
                         return e
@@ -90,7 +90,7 @@ def show_signup():
                     )
                     return
 
-                # Handle responses gracefully
+                # ✅ Handle backend responses
                 if result.status_code == 200:
                     ui.notify("Signup successful! Please log in.", type="positive")
                     ui.navigate.to("/login")

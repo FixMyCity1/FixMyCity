@@ -59,6 +59,12 @@ def show_authority_sidebar():
                     ui.link("Assigned Reports", "/dashboard").classes(
                         "w-full text-lg text-white no-underline hover:bg-gray-700 p-2 rounded-md transition-colors"
                     )
+                    ui.link("Manage Reports", "/auth/reports").classes(
+                        "w-full text-lg text-white no-underline hover:bg-gray-700 p-2 rounded-md transition-colors"
+                    )
+                    ui.link("Analytics", "/auth/analytics").classes(
+                        "w-full text-lg text-white no-underline hover:bg-gray-700 p-2 rounded-md transition-colors"
+                    )
             _create_sidebar_footer()
 
 
@@ -91,7 +97,7 @@ def show_sidebar():
 
     if role == "admin":
         show_admin_sidebar()
-    elif role == "authority":
+    elif role == "authorities":
         show_authority_sidebar()
     elif role == "user":
         show_user_sidebar()

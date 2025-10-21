@@ -78,6 +78,15 @@ def show_login():
                     "text-black hover:underline ml-1"
                 )
 
+            ui.separator().classes("w-80 my-4")
+
+            ui.button(
+                "Back to Home",
+                on_click=lambda: ui.navigate.to("/"),
+            ).props(
+                "flat color=black"
+            ).classes("w-80")
+
         # Right side image
         with ui.element("div").classes("w-3/5 h-full relative"):
             ui.image("/assets/login2.jpg").classes(
