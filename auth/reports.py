@@ -147,7 +147,16 @@ async def show_reports():
                 {"name": "status", "label": "Status", "field": "status"},
             ]
 
-            table = ui.table(columns=columns, rows=[], row_key="id").classes("w-full")
+            table = (
+                ui.table(columns=columns, rows=[], row_key="id")
+                .classes("w-full cursor-pointer")
+                .on(
+                    "rowClick",
+                    lambda e: ui.navigate.to(
+                        f"/authority/update_report/{e.args['row']['id']}"
+                    ),
+                )
+            )
 
             def export_csv():
                 """Exports the current table data to a CSV file."""
