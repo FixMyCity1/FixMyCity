@@ -32,6 +32,15 @@ def main_page():
                 transform: translateY(20px); /* Start slightly below its final position */
                 transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Smooth transition */
             }
+            /* Override browser's default autofill style */
+            input:-webkit-autofill,
+            input:-webkit-autofill:hover,
+            input:-webkit-autofill:focus,
+            input:-webkit-autofill:active {                
+                transition: background-color 5000s ease-in-out 0s;
+                -webkit-box-shadow: 0 0 0 30px white inset !important;
+                -webkit-text-fill-color: #000 !important;
+            }
             /* Final state when element is in view */
             .scroll-animate-section.scroll-animate-active {
                 opacity: 1;

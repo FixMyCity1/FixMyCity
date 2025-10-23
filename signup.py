@@ -1,5 +1,6 @@
 from nicegui import ui, run
 import requests
+import asyncio
 from utils.api import base_url
 
 
@@ -93,6 +94,7 @@ def show_signup():
                 # ✅ Handle backend responses
                 if result.status_code == 200:
                     ui.notify("Signup successful! Please log in.", type="positive")
+                    await asyncio.sleep(2)  # Wait for 2 seconds before redirecting
                     ui.navigate.to("/login")
                 elif result.status_code == 409:
                     ui.notify(

@@ -10,8 +10,6 @@ def create_report_view(report: dict):
         with ui.row().classes("w-full justify-between items-start"):
             with ui.column().classes("gap-1"):
                 ui.label("Report Details").classes("text-4xl font-bold text-black")
-                # Use .get() for safety in case a key is missing from the API response
-                ui.label(f"Report ID: #{report.get('id')}").classes("text-gray-500")
             ui.badge(
                 report.get("status", "Unknown"),
                 color={
