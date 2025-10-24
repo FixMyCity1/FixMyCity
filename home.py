@@ -250,7 +250,7 @@ def show_home():
             with ui.row().classes("w-full justify-center items-stretch gap-6"):
                 # Blog Post 1
                 with ui.card().classes("w-80"):
-                    ui.image("/assets/blog1.jpg")
+                    ui.image("/assets/madina.webp")
                     with ui.card_section():
                         ui.label("Community Cleanup a Huge Success in Madina").classes(
                             "text-lg font-bold my-1"
@@ -262,7 +262,7 @@ def show_home():
 
                 # Blog Post 2
                 with ui.card().classes("w-80"):
-                    ui.image("/assets/blog2.jpg")
+                    ui.image("/assets/pot.jpg")
                     with ui.card_section():
                         ui.label(
                             "Pothole Patrol: How Your Reports Are Fixing Roads"
@@ -274,7 +274,9 @@ def show_home():
 
                 # Blog Post 3
                 with ui.card().classes("w-80"):
-                    ui.image("/assets/blog3.jpg")
+                    ui.image("/assets/epa.webp").classes(
+                        "w-full h-48 object-contain bg-gray-200"
+                    )
                     with ui.card_section():
                         ui.label("New Partnership with the EPA Announced").classes(
                             "text-lg font-bold my-1"

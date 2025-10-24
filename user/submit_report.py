@@ -15,81 +15,84 @@ def submit_report():
     # Display the sidebar for the logged-in user
     show_sidebar()
 
-    with ui.column().classes("w-full items-center p-8 bg-gray-50 min-h-screen"):
-        ui.label("Report a City Issue").classes("text-4xl font-bold text-gray-800 mb-2")
-        ui.label("Help us improve our community by reporting problems.").classes(
-            "text-gray-600 mb-10"
-        )
-
-        # Input fields
-        category = (
-            ui.select(
-                [
-                    "Potholes",
-                    "Waste Management",
-                    "Water Supply",
-                    "Electricity Outage",
-                    "Roads & Traffic",
-                    "Public Safety",
-                    "Illegal Construction",
-                    "Environmental Pollution",
-                    "Other",
-                ],
-                label="Select a category",
+    with ui.column().classes("w-full items-center p-4 sm:p-8 bg-gray-100 min-h-screen"):
+        with ui.card().classes("w-full max-w-2xl p-8 shadow-lg rounded-xl"):
+            ui.label("Report a City Issue").classes(
+                "text-4xl font-bold text-gray-800 mb-2"
             )
-            .props("outlined dense")
-            .classes("w-full max-w-xl")
-        )
-
-        title = (
-            ui.input("e.g., Large pothole on Main St")
-            .props("outlined dense")
-            .classes("w-full max-w-xl")
-        )
-        description = (
-            ui.textarea("Describe the issue in detail...")
-            .props("outlined dense")
-            .classes("w-full max-w-xl")
-        )
-        region = (
-            ui.input("e.g., Osu, Accra")
-            .props("outlined dense")
-            .classes("w-full max-w-xl")
-        )
-        gps_address = (
-            ui.input("e.g., GA-435-0123 or Google Maps link")
-            .props("outlined dense")
-            .classes("w-full max-w-xl")
-        )
-
-        # Label to provide feedback on file upload
-        upload_feedback = ui.label("").classes("text-green-500 text-sm ml-2 hidden")
-
-        def handle_file_upload(e):
-            """Handles the file upload event, storing content, name, and MIME type."""
-            try:
-                upload_feedback.text = f"File selected: {e.name}"
-                upload_feedback.classes(remove="hidden")
-                ui.notify(f"File '{e.name}' selected.", type="positive")
-            except Exception as ex:
-                ui.notify(f"Error processing file: {ex}", type="negative")
-                upload_feedback.classes(add="hidden")
-
-        flyer_upload = (
-            ui.upload(
-                label="Upload a file (PNG, JPG, GIF up to 10MB)",
-                multiple=False,
-                max_file_size=10_000_000,
+            ui.label("Help us improve our community by reporting problems.").classes(
+                "text-gray-600 mb-8"
             )
-            .props("flat bordered color=black")
-            .on_upload(handle_file_upload)  # Assign the handler here
-            .classes("w-full max-w-xl mb-2")
-        )
 
-        # --- Submit Handler ---
-        def handle_submit_ui_only():
-            ui.notify("Report submitted (UI simulation only)!", type="positive")
+            # --- Issue Details Section ---
+            ui.label("1. What is the issue?").classes("text-xl font-semibold mt-4 mb-2")
+            category = (
+                ui.select(
+                    [
+                        "Potholes",
+                        "Waste Management",
+                        "Water Supply",
+                        "Electricity Outage",
+                        "Roads & Traffic",
+                        "Public Safety",
+                        "Illegal Construction",
+                        "Environmental Pollution",
+                        "Other",
+                    ],
+                    label="Category",
+                    with_input=True,
+                )
+                .props("outlined")
+                .classes("w-full")
+            )
+            title = (
+                ui.input(label="Title", placeholder="e.g., Large pothole on Main St")
+                .props("outlined")
+                .classes("w-full")
+            )
+            description = (
+                ui.textarea(
+                    label="Description", placeholder="Describe the issue in detail..."
+                )
+                .props("outlined")
+                .classes("w-full")
+            )
 
-        ui.button("Submit Report", on_click=handle_submit_ui_only).classes(
-            "w-full max-w-xl py-3 mt-6 text-white bg-black rounded-lg"
-        )
+            # --- Location Section ---
+            ui.label("2. Where is the issue located?").classes(
+                "text-xl font-semibold mt-6 mb-2"
+            )
+            region = (
+                ui.input(label="Region / Area", placeholder="e.g., Osu, Accra")
+                .props("outlined")
+                .classes("w-full")
+            )
+            gps_location = (
+                ui.input(
+                    label="GPS Address or Landmark",
+                    placeholder="e.g., GA-435-0123 or near the post office",
+                )
+                .props("outlined")
+                .classes("w-full")
+            )
+
+            # --- Photo Upload Section ---
+            ui.label("3. Add a photo").classes("text-xl font-semibold mt-6 mb-2")
+
+            flyer = (
+                ui.upload(
+                    label="Take or Upload a Photo (PNG, JPG up to 10MB)",
+                    multiple=False,
+                    max_file_size=10_000_000,
+                )
+                .props('flat bordered color=black capture="environment"')
+                .classes("w-full mb-2")
+            )
+
+            # --- Submit Handler ---
+            def handle_submit_ui_only():
+                ui.notify("Report submitted (UI simulation only)!", type="positive")
+
+            ui.button("Submit Report", on_click=handle_submit_ui_only).props(
+                "color=black size=lg"
+            ).classes("w-full py-3 mt-6 rounded-lg")
