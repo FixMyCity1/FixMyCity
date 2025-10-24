@@ -27,10 +27,13 @@ async def show_reports():
 
         # Filter and Search Section
         with ui.row().classes("w-full justify-between items-center mb-6 gap-4"):
-            with ui.input(placeholder="Search reports...").props(
-                "outlined dense"
-            ).classes("w-full sm:w-64") as search_input:
-                ui.icon("search").classes("cursor-pointer").add_slot("prepend")
+            search_input = (
+                ui.input(placeholder="Search by title...")
+                .props("outlined dense")
+                .classes("w-full sm:w-64")
+            )
+            with search_input.add_slot("prepend"):
+                ui.icon("search")
             status_select = (
                 ui.select(
                     [
@@ -125,9 +128,9 @@ async def show_reports():
         ).props("flat bordered"):
             columns = [
                 {
-                    "name": "id",
-                    "label": "Report ID",
-                    "field": "id",
+                    "name": "title",
+                    "label": "Title",
+                    "field": "title",
                     "required": True,
                     "align": "left",
                     "sortable": True,

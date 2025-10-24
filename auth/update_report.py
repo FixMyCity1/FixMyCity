@@ -126,14 +126,26 @@ async def update_report_page(report_id: str):
 
                 async def handle_update():
                     """Handles the API call to update the report status."""
-                    new_status = status_select.value
+                    # Get the display value from the select component (e.g., "In Progress")
+                    selected_status_display = status_select.value
+
+                    # Map the frontend display value to the required backend format
+                    frontend_to_backend_status_map = {
+                        "Pending": "pending",
+                        "In Progress": "in-progress",
+                        "Resolved": "completed",
+                        "Rejected": "rejected",
+                    }
+                    new_status_for_backend = frontend_to_backend_status_map.get(
+                        selected_status_display, selected_status_display.lower()
+                    )
+
                     token = app.storage.user.get("access_token")
                     headers = {
                         "Authorization": f"Bearer {token}",
                         "Content-Type": "application/x-www-form-urlencoded",
                     }
-                    # The backend seems to expect the capitalized status value directly.
-                    data = {"status_value": new_status}
+                    data = {"status_value": new_status_for_backend}
 
                     def send_request():
                         try:
@@ -154,7 +166,7 @@ async def update_report_page(report_id: str):
                         )
                     elif result.status_code == 200:
                         ui.notify(
-                            f"Report #{report_id} status updated to '{new_status}'.",
+                            f"Report #{report_id} status updated to '{selected_status_display}'.",
                             type="positive",
                         )
                         ui.navigate.to("/dashboard")
@@ -165,7 +177,25 @@ async def update_report_page(report_id: str):
                         )
                         ui.navigate.to("/login")
                     elif result.status_code == 422:
-                        ui.notify("Invalid data for status update.", type="warning")
+                        try:
+                            error_detail = result.json()
+                            # Display specific validation errors from the backend
+                            if "detail" in error_detail:
+                                ui.notify(
+                                    f"Validation Error: {error_detail['detail']}",
+                                    type="warning",
+                                )
+                            else:
+                                ui.notify(
+                                    f"Invalid data for status update: {error_detail}",
+                                    type="warning",
+                                )
+                        except:
+                            ui.notify(
+                                "Invalid data for status update (could not parse error).",
+                                type="warning",
+                            )
+
                     else:
                         ui.notify(f"An error occurred: {result.text}", type="negative")
 

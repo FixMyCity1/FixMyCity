@@ -5,8 +5,8 @@ from utils.api import base_url
 from typing import List, Dict, Any
 
 
-async def fetch_reports_from_api() -> List[Dict[str, Any]] | None:
-    """Fetches a list of reports from the API, handling authentication."""
+async def _fetch_reports(endpoint: str) -> List[Dict[str, Any]] | None:
+    """Generic helper to fetch reports from a given API endpoint."""
     token = app.storage.user.get("access_token")
     if not token:
         ui.notify("Authentication token not found. Please log in.", type="negative")
@@ -17,8 +17,7 @@ async def fetch_reports_from_api() -> List[Dict[str, Any]] | None:
 
     def send_request():
         try:
-            # The backend will return the correct reports based on the user's role/token
-            return requests.get(f"{base_url}/issues", headers=headers)
+            return requests.get(f"{base_url}{endpoint}", headers=headers)
         except requests.exceptions.RequestException as e:
             return e
 
@@ -26,6 +25,13 @@ async def fetch_reports_from_api() -> List[Dict[str, Any]] | None:
 
     if isinstance(result, requests.exceptions.RequestException):
         ui.notify(f"Could not connect to the server: {result}", type="negative")
+        return None
+    # Add a check to ensure the result is not None before accessing attributes
+    elif result is None:
+        ui.notify(
+            "Failed to get a response from the server. Please try again.",
+            type="negative",
+        )
         return None
     elif result.status_code == 200:
         try:
@@ -42,17 +48,19 @@ async def fetch_reports_from_api() -> List[Dict[str, Any]] | None:
                 return json_data
             else:
                 ui.notify(
-                    "API returned unexpected data format (not a list of reports).",
+                    f"API endpoint '{endpoint}' returned unexpected data format.",
                     type="negative",
                 )
                 print(
-                    f"DEBUG: API response for /issues was not a list or a dict with 'data' key: {json_data}"
+                    f"DEBUG: API response for {endpoint} was not a list or a dict with 'data' key: {json_data}"
                 )  # Log for debugging
                 return None
         except requests.exceptions.JSONDecodeError:
-            ui.notify("API returned invalid JSON for reports.", type="negative")
+            ui.notify(
+                f"API endpoint '{endpoint}' returned invalid JSON.", type="negative"
+            )
             print(
-                f"DEBUG: API response for /issues was not valid JSON: {result.text}"
+                f"DEBUG: API response for {endpoint} was not valid JSON: {result.text}"
             )  # Log for debugging
             return None
     else:
@@ -60,6 +68,17 @@ async def fetch_reports_from_api() -> List[Dict[str, Any]] | None:
             f"An error occurred while fetching reports: {result.text}", type="negative"
         )
         return None
+
+
+async def fetch_all_reports_from_api() -> List[Dict[str, Any]] | None:
+    """Fetches ALL reports from the API, intended for admins/authorities."""
+    return await _fetch_reports("/issues")
+
+
+async def fetch_user_reports_from_api() -> List[Dict[str, Any]] | None:
+    """Fetches reports for the CURRENTLY LOGGED-IN USER from the API."""
+    # The backend should use the user's token to filter and return only their own reports from the main /issues endpoint.
+    return await _fetch_reports("/issues")
 
 
 def show_admin_dashboard():
@@ -95,7 +114,7 @@ async def show_authority_dashboard():
             """Fetches reports and renders them in the reports_container for authorities."""
             spinner.set_visibility(True)
             reports_container.clear()  # Clear existing reports
-            reports_data = await fetch_reports_from_api()
+            reports_data = await fetch_all_reports_from_api()
             spinner.set_visibility(False)
 
             with reports_container:  # Render new reports inside the container
@@ -112,13 +131,20 @@ async def show_authority_dashboard():
                     with ui.card().classes("w-full p-4"):  # Add padding to the card
                         with ui.row().classes("w-full items-center"):
                             # Info Section - takes up remaining space
-                            with ui.column().classes("flex-grow gap-0"):
-                                ui.label(report.get("category", "No Category")).classes(
+                            with ui.column().classes("flex-grow gap-1"):
+                                ui.label(report.get("title", "No Title")).classes(
                                     "text-lg font-bold"
                                 )
                                 ui.label(
-                                    f"#{report.get('id', 'N/A')} - {report.get('region', 'No Location')}"
+                                    f"Location: {report.get('region', 'No Location')}"
                                 ).classes("text-sm text-gray-500")
+                                # Truncate description to 100 characters
+                                description = report.get("description", "")
+                                ui.label(
+                                    (description[:100] + "...")
+                                    if len(description) > 100
+                                    else description
+                                ).classes("text-sm text-gray-600")
 
                             # Status and Action Section
                             with ui.column().classes("items-end gap-2"):
@@ -157,7 +183,7 @@ async def show_user_dashboard():
             """Fetches reports and renders them in the user_reports_container."""
             user_spinner.set_visibility(True)
             user_reports_container.clear()  # Clear existing reports
-            user_reports_data = await fetch_reports_from_api()
+            user_reports_data = await fetch_user_reports_from_api()
             user_spinner.set_visibility(False)
 
             with user_reports_container:  # Render new reports inside the container
@@ -175,13 +201,19 @@ async def show_user_dashboard():
                     with ui.card().classes("w-full p-4"):  # Add padding to the card
                         with ui.row().classes("w-full items-center"):
                             # Info Section - takes up remaining space
-                            with ui.column().classes("flex-grow gap-0"):
-                                ui.label(report.get("category", "No Category")).classes(
+                            with ui.column().classes("flex-grow gap-1"):
+                                # Show Title, Location, and a snippet of the description
+                                ui.label(report.get("title", "No Title")).classes(
                                     "text-lg font-bold"
                                 )
                                 ui.label(
-                                    f"#{report_id} - {report.get('region', 'No Location')}"
-                                ).classes("text-sm text-gray-500")
+                                    f"Location: {report.get('region', 'No Location')}"
+                                ).classes("text-sm text-gray-600")
+                                # Truncate description to 100 characters
+                                description = report.get("description", "")
+                                ui.label(
+                                    f'{(description[:100] + "...") if len(description) > 100 else description}'
+                                ).classes().classes("text-sm text-gray-500")
 
                             # Status and Action Section
                             with ui.column().classes("items-end gap-2"):
